@@ -1,30 +1,51 @@
-import { Controller, Get, Param, Post, Delete, Patch } from '@nestjs/common';
+import { MoviesService } from './movies.service';
+import { Movie } from './entities/Movie.entity';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Delete,
+  Patch,
+  Body,
+  Query,
+} from '@nestjs/common';
 
-///movies url에 적용됌
 @Controller('movies')
 export class MoviesController {
+  constructor(private readonly moviesService: MoviesService) {}
+
   @Get()
-  getAll() {
-    return 'this will';
+  getAll(): Movie[] {
+    return this.moviesService.getAll();
   }
+  //search가 Get(:id)보다 아래에 있으면 search는 id로 판단하게된다
+  // 그래서 현재 제일 하단에 있던 search를 위로 끌어올려줌
+  // @Get('search')
+  // search(@Query('year') searchingYear: string) {
+  //   return `We are searching for a movie made after ${searchingYear}`;
+  // }
 
   @Get('/:id')
-  getOne(@Param('id') movieId: string) {
-    return `This will retrun one movie with the id: ${movieId}`;
+  getOne(@Param('id') movieId: string): Movie {
+    return this.moviesService.getOne(movieId);
   }
 
   @Post()
-  create() {
-    return 'This will create a movie';
+  create(@Body() movieData) {
+    return this.moviesService.create(movieData);
   }
 
   @Delete('/:id')
   remove(@Param('id') movieId: string) {
-    return `This will delete a movie with the id: ${movieId}`;
+    return this.moviesService.deleteOne(movieId);
   }
 
   @Patch('/:id')
-  path(@Param('id') movieId: string) {
-    return `This will path a movie with the id: ${movieId}`;
+  patch(@Param('id') movieId: string, @Body() updateData) {
+    return {
+      updatedMovie: movieId,
+      ...updateData,
+    };
   }
 }
